@@ -1,0 +1,24 @@
+# Core (Phase 0) — pinned to versions verified in this environment
+pandas==2.2.2
+pyarrow==17.0.0
+numpy==1.26.0
+yfinance==0.2.65
+pydantic==2.11.1
+
+# Models (Phase 2-3) — installed at their phase
+lightgbm==4.5.0
+torch==2.8.0
+mlflow==2.19.0
+scikit-learn==1.5.2
+
+# Serving (Phase 4)
+fastapi==0.109.2
+uvicorn==0.27.1
+redis==5.0.1
+prometheus-client==0.21.1
+
+# Monitoring (Phase 5)
+evidently==0.4.40
+
+# Dev / test
+pytest==8.3.4
