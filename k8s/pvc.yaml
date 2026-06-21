@@ -1,0 +1,17 @@
+# Shared feature/artifact store. The image bakes a seed copy; an initContainer
+# populates this PVC on first run, then the API (read) and the nightly CronJob
+# (refresh) share it.
+#
+# kind/minikube: default StorageClass is ReadWriteOnce (single node -> fine for
+# multiple pods on that node). Cloud multi-node + HPA needs ReadWriteMany
+# (e.g. GKE Filestore / EFS); change accessModes accordingly.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: volatility-data
+  labels: {app: volatility-api}
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 1Gi

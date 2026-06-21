@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: volatility-api
+  labels: {app: volatility-api}
+spec:
+  replicas: 2
+  selector:
+    matchLabels: {app: volatility-api}
+  template:
+    metadata:
+      labels: {app: volatility-api}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      # Seed the shared PVC from the image's baked data on first run.
+      initContainers:
+        - name: seed-data
+          image: volatility-forecaster:latest
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", "if [ -z \"$(ls -A /pvc 2>/dev/null)\" ]; then cp -r /app/data/. /pvc/; echo seeded; else echo 'pvc already populated'; fi"]
+          volumeMounts:
+            - {name: data, mountPath: /pvc}
+      containers:
+        - name: api
+          image: volatility-forecaster:latest
+          imagePullPolicy: IfNotPresent
+          ports: [{containerPort: 8000}]
+          envFrom:
+            - configMapRef: {name: volatility-config}
+            - secretRef: {name: volatility-secret}
+          volumeMounts:
+            - {name: data, mountPath: /app/data}
+          resources:
+            requests: {cpu: "250m", memory: "512Mi"}
+            limits: {cpu: "1000m", memory: "1Gi"}
+          startupProbe:        # allow model load + INT8 quantization at boot
+            httpGet: {path: /health, port: 8000}
+            failureThreshold: 30
+            periodSeconds: 2
+          readinessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /health, port: 8000}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: volatility-data

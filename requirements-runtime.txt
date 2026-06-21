@@ -1,0 +1,15 @@
+# Runtime image deps (serving + nightly batch + monitoring).
+# torch is installed separately from the CPU wheel index in the Dockerfile so the
+# image does NOT pull the multi-GB CUDA build. Training-only deps (lightgbm,
+# mlflow) are intentionally excluded from the production image.
+pandas==2.2.2
+pyarrow==17.0.0
+numpy==1.26.0
+scikit-learn==1.5.2
+pydantic==2.11.1
+fastapi==0.109.2
+uvicorn==0.27.1
+redis==5.0.1
+prometheus-client==0.21.1
+yfinance==0.2.65
+evidently==0.4.40

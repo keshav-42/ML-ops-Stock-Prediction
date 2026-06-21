@@ -1,0 +1,44 @@
+# Nightly post-close batch. NSE closes 15:30 IST (10:00 UTC); we run at 10:30 UTC
+# on weekdays: refresh OHLCV -> rebuild features -> warm the cache -> run monitoring.
+# Writes to the shared PVC so the API serves the refreshed feature store.
+# (Model RETRAINING is a separate, lower-frequency job, not this nightly refresh.)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: volatility-nightly
+  labels: {app: volatility-api}
+spec:
+  schedule: "30 10 * * 1-5"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: nightly
+              image: volatility-forecaster:latest
+              imagePullPolicy: IfNotPresent
+              envFrom:
+                - configMapRef: {name: volatility-config}
+                - secretRef: {name: volatility-secret}
+              command: ["sh", "-c"]
+              args:
+                - >
+                  python -m scripts.run_ingest &&
+                  python -m scripts.build_dataset &&
+                  python -m scripts.precompute &&
+                  python -m scripts.run_monitoring
+              volumeMounts:
+                - {name: data, mountPath: /app/data}
+              resources:
+                requests: {cpu: "500m", memory: "1Gi"}
+                limits: {cpu: "2000m", memory: "2Gi"}
+          volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: volatility-data

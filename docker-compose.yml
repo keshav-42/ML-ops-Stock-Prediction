@@ -1,0 +1,60 @@
+# Local stack: API + Redis + Prometheus + Grafana + Pushgateway.
+#   docker compose up --build
+#   API   http://localhost:8000/docs     Grafana http://localhost:3000 (admin/admin)
+#   Prom  http://localhost:9090          Pushgateway http://localhost:9091
+services:
+  api:
+    build: .
+    image: volatility-forecaster:latest
+    ports: ["8000:8000"]
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      SERVE_QUANTIZE: "1"
+    depends_on:
+      redis: {condition: service_healthy}
+    restart: unless-stopped
+
+  # One-shot nightly batch (run on demand: `docker compose run --rm batch`).
+  batch:
+    image: volatility-forecaster:latest
+    build: .
+    environment:
+      REDIS_URL: redis://redis:6379/0
+      PUSHGATEWAY_URL: pushgateway:9091
+    depends_on:
+      redis: {condition: service_healthy}
+    command: ["sh", "-c", "python -m scripts.precompute && python -m scripts.run_monitoring"]
+    profiles: ["batch"]
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  prometheus:
+    image: prom/prometheus:v2.54.1
+    ports: ["9090:9090"]
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./monitoring/alerts.yml:/etc/prometheus/alerts.yml:ro
+    restart: unless-stopped
+
+  pushgateway:
+    image: prom/pushgateway:v1.9.0
+    ports: ["9091:9091"]
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    ports: ["3000:3000"]
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/etc/grafana/dashboards:ro
+    depends_on: [prometheus]
+    restart: unless-stopped
