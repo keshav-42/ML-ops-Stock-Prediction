@@ -1,0 +1,55 @@
+# Prometheus alerting rules — system health + model decay/drift.
+groups:
+  - name: volatility-system
+    rules:
+      - alert: HighPredictLatencyP95
+        expr: histogram_quantile(0.95, sum(rate(predict_latency_seconds_bucket[5m])) by (le)) > 0.25
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: "p95 /predict latency > 250ms for 5m"
+
+      - alert: HighErrorRate
+        expr: sum(rate(prediction_errors_total[5m])) / clamp_min(sum(rate(predictions_total[5m])), 1) > 0.05
+        for: 5m
+        labels: {severity: warning}
+        annotations:
+          summary: "Prediction error rate > 5%"
+
+      - alert: ModelDown
+        expr: model_up < 1
+        for: 1m
+        labels: {severity: critical}
+        annotations:
+          summary: "Model not loaded / API unhealthy"
+
+  - name: volatility-model
+    rules:
+      # The closed-loop centerpiece: ground-truth accuracy decayed.
+      - alert: ModelAccuracyDecay
+        expr: model_decay_alert == 1
+        for: 0m
+        labels: {severity: critical}
+        annotations:
+          summary: "Rolling live accuracy fell below threshold (closed-loop ground truth)"
+
+      - alert: LiveAccuracyLow
+        expr: live_accuracy < 0.40
+        for: 0m
+        labels: {severity: warning}
+        annotations:
+          summary: "Out-of-sample accuracy below 0.40"
+
+      - alert: FeatureDriftHigh
+        expr: feature_drift_share > 0.5
+        for: 0m
+        labels: {severity: warning}
+        annotations:
+          summary: "More than 50% of features drifted (PSI > 0.25)"
+
+      - alert: PredictionDistributionDrift
+        expr: prediction_drift_psi > 0.25
+        for: 0m
+        labels: {severity: warning}
+        annotations:
+          summary: "Predicted-bucket distribution drifted from training (PSI > 0.25)"

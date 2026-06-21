@@ -1,0 +1,61 @@
+{
+  "title": "NSE Volatility Forecaster — System & Model",
+  "uid": "vol-forecaster",
+  "schemaVersion": 38,
+  "version": 1,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "panels": [
+    {
+      "id": 1, "title": "QPS (predictions/s)", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 0 },
+      "targets": [ { "expr": "sum(rate(predictions_total[1m]))", "legendFormat": "qps" } ]
+    },
+    {
+      "id": 2, "title": "p95 /predict latency (s)", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 0 },
+      "targets": [ { "expr": "histogram_quantile(0.95, sum(rate(predict_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p95" } ]
+    },
+    {
+      "id": 3, "title": "Error rate", "type": "timeseries",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 0 },
+      "targets": [ { "expr": "sum(rate(prediction_errors_total[5m])) / clamp_min(sum(rate(predictions_total[5m])), 1)", "legendFormat": "err" } ]
+    },
+    {
+      "id": 4, "title": "Cache hit ratio", "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1 } },
+      "targets": [ { "expr": "cache_hits_total / clamp_min(cache_hits_total + cache_misses_total, 1)" } ]
+    },
+    {
+      "id": 5, "title": "Live accuracy (closed-loop)", "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1,
+        "thresholds": { "steps": [ { "color": "red", "value": null }, { "color": "yellow", "value": 0.4 }, { "color": "green", "value": 0.5 } ] } } },
+      "targets": [ { "expr": "live_accuracy" } ]
+    },
+    {
+      "id": 6, "title": "Model decay alert", "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 7 },
+      "fieldConfig": { "defaults": { "mappings": [ { "type": "value", "options": { "0": { "text": "OK", "color": "green" }, "1": { "text": "DECAY", "color": "red" } } } ] } },
+      "targets": [ { "expr": "model_decay_alert" } ]
+    },
+    {
+      "id": 7, "title": "Feature drift share (PSI>0.25)", "type": "stat",
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 7 },
+      "fieldConfig": { "defaults": { "unit": "percentunit", "min": 0, "max": 1,
+        "thresholds": { "steps": [ { "color": "green", "value": null }, { "color": "yellow", "value": 0.3 }, { "color": "red", "value": 0.5 } ] } } },
+      "targets": [ { "expr": "feature_drift_share" } ]
+    },
+    {
+      "id": 8, "title": "Per-feature PSI", "type": "bargauge",
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 13 },
+      "targets": [ { "expr": "topk(10, feature_psi)", "legendFormat": "{{feature}}" } ]
+    },
+    {
+      "id": 9, "title": "Prediction-distribution PSI", "type": "timeseries",
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 13 },
+      "targets": [ { "expr": "prediction_drift_psi", "legendFormat": "pred PSI" } ]
+    }
+  ]
+}
