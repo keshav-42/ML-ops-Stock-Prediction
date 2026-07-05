@@ -5,8 +5,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:57+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\M&M_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:57+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/M&M_NS.parquet"
   },
   "RELIANCE.NS": {
     "ticker": "RELIANCE.NS",
@@ -14,8 +14,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:46+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\RELIANCE_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:53+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/RELIANCE_NS.parquet"
   },
   "TCS.NS": {
     "ticker": "TCS.NS",
@@ -23,8 +23,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:46+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\TCS_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:53+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/TCS_NS.parquet"
   },
   "HDFCBANK.NS": {
     "ticker": "HDFCBANK.NS",
@@ -32,8 +32,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:47+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\HDFCBANK_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:53+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/HDFCBANK_NS.parquet"
   },
   "ICICIBANK.NS": {
     "ticker": "ICICIBANK.NS",
@@ -41,8 +41,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:47+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\ICICIBANK_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:53+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/ICICIBANK_NS.parquet"
   },
   "INFY.NS": {
     "ticker": "INFY.NS",
@@ -50,8 +50,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:48+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\INFY_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:54+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/INFY_NS.parquet"
   },
   "HINDUNILVR.NS": {
     "ticker": "HINDUNILVR.NS",
@@ -59,8 +59,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:48+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\HINDUNILVR_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:54+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/HINDUNILVR_NS.parquet"
   },
   "ITC.NS": {
     "ticker": "ITC.NS",
@@ -68,8 +68,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:49+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\ITC_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:54+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/ITC_NS.parquet"
   },
   "SBIN.NS": {
     "ticker": "SBIN.NS",
@@ -77,8 +77,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:49+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\SBIN_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:54+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/SBIN_NS.parquet"
   },
   "BHARTIARTL.NS": {
     "ticker": "BHARTIARTL.NS",
@@ -86,8 +86,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:50+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\BHARTIARTL_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:54+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/BHARTIARTL_NS.parquet"
   },
   "KOTAKBANK.NS": {
     "ticker": "KOTAKBANK.NS",
@@ -95,8 +95,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:51+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\KOTAKBANK_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:55+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/KOTAKBANK_NS.parquet"
   },
   "LT.NS": {
     "ticker": "LT.NS",
@@ -104,8 +104,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:51+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\LT_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:55+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/LT_NS.parquet"
   },
   "AXISBANK.NS": {
     "ticker": "AXISBANK.NS",
@@ -113,8 +113,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:52+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\AXISBANK_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:55+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/AXISBANK_NS.parquet"
   },
   "BAJFINANCE.NS": {
     "ticker": "BAJFINANCE.NS",
@@ -122,8 +122,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:52+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\BAJFINANCE_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:55+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/BAJFINANCE_NS.parquet"
   },
   "ASIANPAINT.NS": {
     "ticker": "ASIANPAINT.NS",
@@ -131,8 +131,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:53+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\ASIANPAINT_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:56+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/ASIANPAINT_NS.parquet"
   },
   "MARUTI.NS": {
     "ticker": "MARUTI.NS",
@@ -140,8 +140,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:53+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\MARUTI_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:56+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/MARUTI_NS.parquet"
   },
   "HCLTECH.NS": {
     "ticker": "HCLTECH.NS",
@@ -149,8 +149,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:54+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\HCLTECH_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:56+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/HCLTECH_NS.parquet"
   },
   "SUNPHARMA.NS": {
     "ticker": "SUNPHARMA.NS",
@@ -158,8 +158,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:54+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\SUNPHARMA_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:56+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/SUNPHARMA_NS.parquet"
   },
   "TITAN.NS": {
     "ticker": "TITAN.NS",
@@ -167,8 +167,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:55+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\TITAN_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:56+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/TITAN_NS.parquet"
   },
   "ULTRACEMCO.NS": {
     "ticker": "ULTRACEMCO.NS",
@@ -176,8 +176,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:55+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\ULTRACEMCO_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:57+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/ULTRACEMCO_NS.parquet"
   },
   "WIPRO.NS": {
     "ticker": "WIPRO.NS",
@@ -185,8 +185,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:56+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\WIPRO_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:57+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/WIPRO_NS.parquet"
   },
   "NESTLEIND.NS": {
     "ticker": "NESTLEIND.NS",
@@ -194,8 +194,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:57+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\NESTLEIND_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:57+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/NESTLEIND_NS.parquet"
   },
   "TATASTEEL.NS": {
     "ticker": "TATASTEEL.NS",
@@ -203,8 +203,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:58+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\TATASTEEL_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:57+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/TATASTEEL_NS.parquet"
   },
   "POWERGRID.NS": {
     "ticker": "POWERGRID.NS",
@@ -212,8 +212,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:58+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\POWERGRID_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:58+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/POWERGRID_NS.parquet"
   },
   "NTPC.NS": {
     "ticker": "NTPC.NS",
@@ -221,8 +221,8 @@
     "rows": 3579,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:59+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\NTPC_NS.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:58+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/NTPC_NS.parquet"
   },
   "^NSEI": {
     "ticker": "^NSEI",
@@ -230,8 +230,8 @@
     "rows": 3559,
     "first_date": "2012-01-03",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:52:59+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\_NSEI.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:58+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/_NSEI.parquet"
   },
   "^INDIAVIX": {
     "ticker": "^INDIAVIX",
@@ -239,7 +239,7 @@
     "rows": 3554,
     "first_date": "2012-01-02",
     "last_date": "2026-07-03",
-    "fetched_at_utc": "2026-07-05T21:53:00+00:00",
-    "path": "C:\\Users\\kesha\\OneDrive\\Desktop\\Stock_market\\data\\raw\\_INDIAVIX.parquet"
+    "fetched_at_utc": "2026-07-05T22:06:58+00:00",
+    "path": "/home/runner/work/ML-ops-Stock-Prediction/ML-ops-Stock-Prediction/data/raw/_INDIAVIX.parquet"
   }
 }
