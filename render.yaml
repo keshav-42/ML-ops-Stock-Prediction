@@ -1,0 +1,18 @@
+# Render blueprint: deploys the FastAPI serving stack from the repo's Dockerfile.
+# Dashboard (web/) goes to Vercel separately — see DEPLOY.md.
+services:
+  - type: web
+    name: volcast-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      # Set this to your Vercel URL after the dashboard's first deploy,
+      # e.g. https://volcast.vercel.app (comma-separate to allow several).
+      - key: UI_ORIGINS
+        value: http://localhost:3000
+      - key: SERVE_QUANTIZE
+        value: "1"
+      # No Redis on the free tier; the app degrades gracefully to compute-on-request.
+      - key: REDIS_URL
+        value: ""

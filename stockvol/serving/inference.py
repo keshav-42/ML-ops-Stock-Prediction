@@ -79,7 +79,40 @@ class Predictor:
         # past the last known day -> estimate next business day
         return str((pd.Timestamp(date) + pd.offsets.BDay(1)).date())
 
-    def predict(self, ticker: str, date: str | None = None) -> dict:
+    def replay(self, ticker: str, days: int = 60) -> list[dict]:
+        """Predicted vs actual buckets for the last `days` labeled trading days.
+
+        Same causal batch replay as monitoring.closed_loop, restricted to one
+        ticker — backs the dashboard's hit/miss ribbon. Only rows whose t+1
+        label is already known are included, so this never grades the pending
+        (still-unknown) next-day prediction.
+        """
+        if ticker not in self._store:
+            raise UnknownTicker(ticker)
+        g = self._store[ticker]
+        labeled = g.index[(g.index >= self.window - 1) & g["label_int"].notna()]
+        ends = list(labeled[-days:])
+        if not ends:
+            return []
+
+        feats = g[self.columns].to_numpy(dtype=np.float32)
+        X = np.stack(
+            [((feats[i - self.window + 1 : i + 1] - self._mean) / self._std).T for i in ends]
+        ).astype(np.float32)
+        with torch.no_grad():
+            preds = self.model(torch.from_numpy(X)).argmax(1).numpy()
+
+        return [
+            {
+                "date": str(pd.Timestamp(g.iloc[i]["date"]).date()),
+                "predicted": self.classes[int(preds[j])],
+                "actual": self.classes[int(g.iloc[i]["label_int"])],
+            }
+            for j, i in enumerate(ends)
+        ]
+
+    def _scaled_window(self, ticker: str, date: str | None) -> tuple[pd.DataFrame, int, np.ndarray]:
+        """Resolve the as-of row and return (group, end_idx, scaled window)."""
         if ticker not in self._store:
             raise UnknownTicker(ticker)
         g = self._store[ticker]
@@ -101,6 +134,10 @@ class Predictor:
         win = g.iloc[end_idx - self.window + 1 : end_idx + 1]
         feats = win[self.columns].to_numpy(dtype=np.float32)
         scaled = (feats - self._mean) / self._std
+        return g, end_idx, scaled
+
+    def predict(self, ticker: str, date: str | None = None) -> dict:
+        g, end_idx, scaled = self._scaled_window(ticker, date)
         x = torch.from_numpy(scaled.T[None, :, :])  # (1, n_features, window)
 
         with torch.no_grad():
@@ -115,4 +152,49 @@ class Predictor:
             "bucket": bucket,
             "probs": {c: float(p) for c, p in zip(self.classes, probs)},
             "model_quant": self.model_quant,
+        }
+
+    def explain(self, ticker: str, date: str | None = None) -> dict:
+        """Occlusion attribution for the current prediction.
+
+        Each feature channel is zeroed in the standardized window (0 == the
+        train-fold mean, i.e. 'this feature is unremarkable'); the drop in the
+        predicted class's probability is that feature's contribution. Positive
+        means the feature pushed the model TOWARD the predicted bucket.
+        Gradient-free, so it works on the INT8 static-quantized model.
+        """
+        g, end_idx, scaled = self._scaled_window(ticker, date)
+        n = len(self.columns)
+
+        base = torch.from_numpy(scaled.T[None, :, :])
+        occluded = np.repeat(scaled.T[None, :, :], n, axis=0)  # (n, F, W)
+        for j in range(n):
+            occluded[j, j, :] = 0.0
+
+        with torch.no_grad():
+            probs = F.softmax(self.model(base), dim=1).numpy()[0]
+            k = int(probs.argmax())
+            abl = F.softmax(
+                self.model(torch.from_numpy(occluded.astype(np.float32))), dim=1
+            ).numpy()[:, k]
+
+        raw_last = g.iloc[end_idx]
+        attributions = sorted(
+            (
+                {
+                    "feature": c,
+                    "contribution": float(probs[k] - abl[j]),
+                    "value": float(raw_last[c]),
+                }
+                for j, c in enumerate(self.columns)
+            ),
+            key=lambda a: abs(a["contribution"]),
+            reverse=True,
+        )
+        return {
+            "ticker": ticker,
+            "as_of_date": str(pd.Timestamp(raw_last["date"]).date()),
+            "bucket": self.classes[k],
+            "prob": float(probs[k]),
+            "attributions": attributions,
         }

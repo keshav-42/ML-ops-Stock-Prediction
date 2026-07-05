@@ -30,6 +30,9 @@ COPY scripts/ ./scripts/
 # seed a shared PVC via an initContainer; in compose they are used directly.
 COPY data/artifacts/ ./data/artifacts/
 COPY data/processed/features.parquet ./data/processed/features.parquet
+# Dashboard endpoints: /history reads raw OHLCV, /accuracy reads the live series.
+COPY data/raw/ ./data/raw/
+COPY data/monitoring/closed_loop.csv ./data/monitoring/closed_loop.csv
 
 # Run as non-root.
 RUN useradd -u 10001 -m appuser && chown -R appuser:appuser /app

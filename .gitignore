@@ -1,7 +1,22 @@
-# data + generated artifacts (all regenerable from the pipeline)
-data/
+# data + generated artifacts (all regenerable from the pipeline) — EXCEPT the
+# serving seed data, which is committed so the API deploys straight from GitHub:
+#   data/artifacts/            trained model + scaler + calibration (~2.4 MB)
+#   data/raw/*.parquet         OHLCV history for /history charts (~5.5 MB)
+#   data/processed/features.parquet   serving feature store (~16 MB)
+#   data/monitoring/closed_loop.csv   live-accuracy series for /accuracy
+data/*
+!data/artifacts/
+!data/raw/
+!data/processed/
+data/processed/*
+!data/processed/features.parquet
+!data/monitoring/
+data/monitoring/*
+!data/monitoring/closed_loop.csv
 mlruns/
 *.parquet
+!data/raw/*.parquet
+!data/processed/features.parquet
 
 # python
 __pycache__/

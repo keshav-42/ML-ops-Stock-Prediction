@@ -1,0 +1,45 @@
+{
+  "feature_columns": [
+    "ret_1",
+    "ret_5",
+    "ret_10",
+    "ret_21",
+    "rstd_5",
+    "rstd_10",
+    "rstd_21",
+    "parkinson_t",
+    "gk_t",
+    "gk_ma_5",
+    "gk_ma_10",
+    "gk_ma_21",
+    "atr_14",
+    "rsi_14",
+    "macd",
+    "macd_signal",
+    "macd_hist",
+    "vol_z_21",
+    "nifty_ret_1",
+    "nifty_rstd_21",
+    "vix_level",
+    "vix_chg",
+    "dow_sin",
+    "dow_cos",
+    "month_sin",
+    "month_cos",
+    "expiry_week_flag",
+    "days_to_expiry"
+  ],
+  "classes": [
+    "low",
+    "med",
+    "high"
+  ],
+  "window": 40,
+  "channels": [
+    32,
+    32,
+    64
+  ],
+  "train_cutoff": "2025-02-10",
+  "created_at": "2026-06-21T12:17:21+00:00"
+}

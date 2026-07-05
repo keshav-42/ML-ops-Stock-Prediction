@@ -74,6 +74,7 @@ yfinance OHLCV ──► parquet ──► causal features + trailing-tercile la
 | Tracking    | `mlflow` |
 | Serving     | `fastapi`, `uvicorn`, `pydantic` v2, `redis` |
 | Monitoring  | `prometheus-client`, Grafana, `evidently` |
+| Dashboard   | Next.js 16, React 19, Tailwind v4, TradingView `lightweight-charts` |
 | Infra       | Docker (multi-stage), docker-compose, Kubernetes |
 
 ---
@@ -94,6 +95,7 @@ stockvol/                 # library code (small, typed, modular)
 scripts/                  # CLI entrypoints (run_ingest, train_*, export_model, ...)
 tests/                    # pytest (34 tests); leakage suite is the Phase-1 gate
 k8s/                      # Deployment/Service/HPA/ConfigMap/Secret/CronJob + README
+web/                      # Next.js dashboard (dark, minimal; talks to the API)
 data/                     # raw/ processed/ artifacts/ monitoring/ (gitignored)
 architecture.md data_spec.md             # design + data-spec deliverables
 ```
@@ -128,10 +130,16 @@ python -m scripts.precompute                       # warm Redis cache
 # Phase 5 — monitoring
 python -m scripts.run_monitoring                   # closed-loop accuracy + drift
 
+# Dashboard — Next.js UI (needs the API from Phase 4 running on :8000)
+cd web && npm install && npm run dev               # http://localhost:3000
+
 # Phase 6 — docker / k8s
 docker compose up --build                          # api + redis + prometheus + grafana + pushgateway
 kubectl apply -k k8s/                              # full stack (see k8s/README.md)
 ```
+
+Public deploy (Render free tier for the API + Vercel for the dashboard): see
+[DEPLOY.md](DEPLOY.md).
 
 ---
 

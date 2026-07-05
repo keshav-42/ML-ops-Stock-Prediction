@@ -7,16 +7,19 @@ a TTL to the next market close.
 
 from __future__ import annotations
 
+import os
 import time
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Gauge, Histogram, generate_latest
 
 from .cache import PredictionCache, seconds_to_next_close
 from .inference import InsufficientHistory, Predictor, UnknownTicker
 from .schemas import HealthResponse, PredictRequest, PredictResponse
+from .ui import router as ui_router
 
 # --- Prometheus metrics ----------------------------------------------------
 PRED_TOTAL = Counter("predictions_total", "Total prediction requests", ["ticker", "bucket"])
@@ -41,6 +44,17 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="NSE Volatility-Bucket Forecaster", version="0.1.0", lifespan=lifespan)
+
+# CORS for the Next.js dashboard (web/); override with UI_ORIGINS in prod.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.environ.get(
+        "UI_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000"
+    ).split(","),
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+app.include_router(ui_router)
 
 
 @app.get("/health", response_model=HealthResponse)
