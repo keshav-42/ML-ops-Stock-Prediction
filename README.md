@@ -1,35 +1,60 @@
-# Next-Day Volatility-Bucket Forecaster (NSE)
+# VolCast — Next-Day Volatility Forecaster for NSE Stocks
 
-An end-to-end ML/MLOps project that predicts the **next-day volatility bucket**
-(`low` / `med` / `high`, 3-class) for NSE stocks from daily OHLCV data.
+[![CI](https://github.com/keshav-42/ML-ops-Stock-Prediction/actions/workflows/ci.yml/badge.svg)](https://github.com/keshav-42/ML-ops-Stock-Prediction/actions/workflows/ci.yml)
+**[Live demo →](https://ml-ops-stock-prediction.vercel.app)**
 
-The target is deliberately **volatility, not price direction**. Volatility clusters
-and is genuinely forecastable, whereas next-day direction is close to a coin flip —
-which would make any monitoring or drift story dishonest. This choice is what lets the
-project show a real, measurable model quality signal in production.
-
-> Built as a portfolio project to demonstrate a correct, leakage-free time-series ML
-> pipeline all the way from raw data to a containerized, monitored serving stack.
+An end-to-end ML + MLOps system that forecasts the **next-day volatility bucket**
+(`low` / `med` / `high`) for 25 NIFTY-50 stocks — from raw OHLCV ingestion through
+a leakage-tested training pipeline, a quantized PyTorch model served behind
+FastAPI, live drift/accuracy monitoring, and a Next.js dashboard that explains
+every prediction.
 
 **Author:** Keshav ([keshavtrivedit24@gmail.com](mailto:keshavtrivedit24@gmail.com))
 
 ---
 
-## Why this project is different
+## Why volatility, not price?
 
-Most retail "stock ML" projects silently cheat: they shuffle time-series data, scale on
-the full dataset, or label with global quantiles that peek into the future. This repo
-treats those failure modes as **first-class correctness gates**:
+Most retail "stock ML" projects predict price direction — and silently cheat to
+make the numbers look good: shuffled time-series splits, scalers fit on the full
+dataset, labels that peek into the future. Next-day *direction* is close to a coin
+flip, so any impressive accuracy is almost always leakage.
 
-- **Zero lookahead** — every feature for day `t` uses only data `<= t`; labels use `t+1`.
-- **Time-series splits only** — walk-forward / expanding window with a **purge gap**
-  between train and validation. No shuffling, ever.
-- **Causal scaling** — scalers fit on the train fold only (or rolling), never on full data.
-- **Trailing-quantile labels** — terciles computed from a trailing 252-day window per
-  ticker, never global or forward-looking.
-- **Leakage tests gate the models** — the leakage suite must pass before any model code runs.
-- **Honest baseline** — LightGBM first, PyTorch TCN compared on the *same* splits;
-  metrics reported as macro-F1 + per-class recall, never bare accuracy.
+**Volatility is different.** It clusters, it persists, and it is genuinely
+forecastable — which means this project can show a *real, measurable* model
+quality signal in production and grade itself honestly, every day. The live
+rolling accuracy (~37% vs a 33% random baseline for 3 classes) is modest and
+**real** — and the entire system is built to keep it that way.
+
+---
+
+## Features
+
+**Honest ML pipeline (the core)**
+- **Zero lookahead** — every feature for day `t` uses only data `≤ t`; labels use `t+1`
+- **Walk-forward splits with a purge gap** — no shuffling, ever; scalers fit on train folds only
+- **Trailing-tercile labels** — computed per ticker from a trailing 252-day window, never global
+- **Leakage test suite gates the models** — it must pass before any model code runs (enforced in CI)
+- **Honest baseline** — LightGBM first (macro-F1 0.416), PyTorch TCN compared on the *same* splits (0.441); metrics are macro-F1 + per-class recall, never bare accuracy
+
+**Modeling**
+- Temporal Convolutional Network over 60-day windows of 28 causal features (incl. India VIX, Parkinson & Garman–Klass range volatility)
+- **Transfer learning**: pooled encoder trained across all tickers + fine-tuned heads (+3.2 F1 pts over from-scratch)
+- **Static INT8 quantization**: 2.5× smaller, faster on CPU, −0.03 F1 pts (~free)
+
+**Production serving**
+- FastAPI `/predict` with Redis **precompute-then-serve** caching (TTL to next market close), Prometheus metrics, p99 latency histograms
+- Explainability endpoint: **occlusion attribution** that works directly on the INT8 model
+
+**Monitoring that closes the loop**
+- Daily **closed-loop live accuracy**: yesterday's predictions graded against what actually happened, with rolling macro-F1 and a decay alert threshold
+- **Evidently drift reports** + prediction-distribution PSI, exported to Prometheus/Grafana
+
+**Dashboard ([live](https://ml-ops-stock-prediction.vercel.app))**
+- Next.js 16 dark-minimal UI: market pulse across all 25 stocks, candlestick charts, per-prediction "why" panel, 60-session hit/miss ribbon, live model-health panel
+
+**Infrastructure**
+- Multi-stage Docker (CPU-only torch), docker-compose stack (API + Redis + Prometheus + Grafana), Kubernetes manifests (HPA, CronJob, probes), GitHub Actions CI
 
 Feature/label definitions live in [data_spec.md](data_spec.md); system design in
 [architecture.md](architecture.md).
