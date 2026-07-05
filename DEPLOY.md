@@ -40,9 +40,14 @@ Back on Render: **Environment → UI_ORIGINS** →
 
 Done. Put the Vercel link at the top of the README.
 
-## Keeping the deployed model fresh (optional)
+## Keeping the deployed model fresh
 
-The committed seed data is a snapshot. To refresh it:
+**Automated:** the [Refresh data](.github/workflows/refresh-data.yml) workflow
+runs every trading day at 19:00 IST — ingest → features → monitoring → commit →
+push, which redeploys Render and Vercel automatically. It can also be run
+on demand from the Actions tab (**Run workflow**).
+
+Manual fallback:
 
 ```bash
 python -m scripts.run_ingest && python -m scripts.build_dataset

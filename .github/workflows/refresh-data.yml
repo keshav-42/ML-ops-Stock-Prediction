@@ -1,0 +1,52 @@
+# Nightly data refresh: ingest new OHLCV -> rebuild features -> update the
+# closed-loop/drift series -> commit the new serving snapshot. The push makes
+# Render rebuild the API image and Vercel redeploy the dashboard, so the live
+# site stays current without any manual step.
+name: Refresh data
+
+on:
+  schedule:
+    # 19:00 IST (13:30 UTC) Mon-Fri — after the NSE close and vendor settlement.
+    - cron: "30 13 * * 1-5"
+  workflow_dispatch: # manual runs from the Actions tab
+
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      # CPU-only torch first so requirements.txt doesn't pull the CUDA wheel.
+      - run: pip install torch==2.8.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -r requirements.txt
+
+      - name: Ingest, rebuild features, update monitoring
+        run: |
+          python -m scripts.run_ingest
+          python -m scripts.build_dataset
+          python -m scripts.run_monitoring
+
+      - name: Commit refreshed snapshot (skip if market was closed / no change)
+        run: |
+          git add data/raw data/processed/features.parquet data/monitoring/closed_loop.csv
+          if git diff --cached --quiet; then
+            echo "No new data — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "data: automated refresh $(date -u +%F)"
+          git push
