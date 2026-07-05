@@ -16,4 +16,3 @@ data/processed/*.json
 data/processed/tcn_lastfold.pt
 # keep: data/artifacts/, data/processed/features.parquet (baked seed)
 *.md
-!CLAUDE.md

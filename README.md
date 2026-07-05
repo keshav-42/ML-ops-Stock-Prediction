@@ -31,8 +31,8 @@ treats those failure modes as **first-class correctness gates**:
 - **Honest baseline** — LightGBM first, PyTorch TCN compared on the *same* splits;
   metrics reported as macro-F1 + per-class recall, never bare accuracy.
 
-Full rules live in [CLAUDE.md](CLAUDE.md); feature/label definitions in
-[data_spec.md](data_spec.md); system design in [architecture.md](architecture.md).
+Feature/label definitions live in [data_spec.md](data_spec.md); system design in
+[architecture.md](architecture.md).
 
 ---
 
@@ -95,7 +95,7 @@ scripts/                  # CLI entrypoints (run_ingest, train_*, export_model, 
 tests/                    # pytest (34 tests); leakage suite is the Phase-1 gate
 k8s/                      # Deployment/Service/HPA/ConfigMap/Secret/CronJob + README
 data/                     # raw/ processed/ artifacts/ monitoring/ (gitignored)
-CLAUDE.md architecture.md data_spec.md   # context deliverables
+architecture.md data_spec.md             # design + data-spec deliverables
 ```
 
 ---
@@ -158,7 +158,7 @@ passes its own checks before the next begins.
 | Phase | Commit | What it delivers |
 |-------|--------|------------------|
 | — | `chore: project scaffolding and pinned dependencies` | Repo skeleton, pinned `requirements.txt` |
-| — | `docs: context deliverables` | CLAUDE.md, architecture.md, data_spec.md |
+| — | `docs: context deliverables` | architecture.md, data_spec.md |
 | **0** | `feat(ingest)` | Idempotent yfinance → parquet ingestion; India VIX as a first-class series |
 | **1** | `feat(features)` | Causal features, trailing-tercile labels, and the leakage suite |
 | **2** | `feat(models)` | LightGBM baseline + PyTorch TCN on identical splits |
