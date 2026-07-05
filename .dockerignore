@@ -9,10 +9,12 @@ __pycache__/
 .ruff_cache/
 mlruns/
 tests/
-data/raw/
-data/monitoring/
+web/
+data/monitoring/*
+!data/monitoring/closed_loop.csv
 data/processed/*.log
 data/processed/*.json
 data/processed/tcn_lastfold.pt
-# keep: data/artifacts/, data/processed/features.parquet (baked seed)
+# keep: data/artifacts/, data/raw/ (/history OHLCV), data/monitoring/closed_loop.csv
+# (/accuracy series), data/processed/features.parquet (serving feature store)
 *.md
