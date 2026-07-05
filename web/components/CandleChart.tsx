@@ -73,5 +73,5 @@ export default function CandleChart({ candles }: { candles: Candle[] }) {
     return () => chart.remove();
   }, [candles]);
 
-  return <div ref={containerRef} className="h-[360px] w-full" />;
+  return <div ref={containerRef} className="min-h-90 w-full grow" />;
 }

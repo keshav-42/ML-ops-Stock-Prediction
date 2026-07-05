@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import AccuracyRibbon from "@/components/AccuracyRibbon";
 import CandleChart from "@/components/CandleChart";
+import Hero, { type IndexStat } from "@/components/Hero";
+import MarketPulse, { type PulseMap } from "@/components/MarketPulse";
 import ModelHealth from "@/components/ModelHealth";
 import PredictionCard from "@/components/PredictionCard";
 import TickerPicker from "@/components/TickerPicker";
@@ -18,6 +20,16 @@ import {
 } from "@/lib/api";
 import { metaOf, shortSymbol } from "@/lib/tickers";
 
+function indexStat(label: string, candles: Candle[]): IndexStat {
+  const last = candles.at(-1);
+  const prev = candles.at(-2);
+  return {
+    label,
+    value: last ? last.close.toLocaleString("en-IN", { maximumFractionDigits: 1 }) : "—",
+    changePct: last && prev ? ((last.close - prev.close) / prev.close) * 100 : null,
+  };
+}
+
 export default function Dashboard() {
   const [tickers, setTickers] = useState<string[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
@@ -26,6 +38,8 @@ export default function Dashboard() {
     series: AccuracyPoint[];
     latest: AccuracyPoint | null;
   } | null>(null);
+  const [indexStats, setIndexStats] = useState<IndexStat[]>([]);
+  const [pulse, setPulse] = useState<PulseMap | null>(null);
   const [apiDown, setApiDown] = useState(false);
 
   const [prediction, setPrediction] = useState<Prediction | null>(null);
@@ -35,24 +49,35 @@ export default function Dashboard() {
   const [predicting, setPredicting] = useState(false);
   const [predictError, setPredictError] = useState<string | null>(null);
 
-  // Global data: universe, health, live accuracy.
+  // Global data: universe, health, live accuracy, index context, pulse.
   useEffect(() => {
     (async () => {
+      let universe: string[];
       try {
         const [t, h] = await Promise.all([api.tickers(), api.health()]);
-        setTickers(t.tickers);
+        universe = t.tickers;
+        setTickers(universe);
         setHealth(h);
-        setSelected((s) => s ?? (t.tickers.includes("RELIANCE.NS") ? "RELIANCE.NS" : t.tickers[0]));
+        setSelected((s) => s ?? (universe.includes("RELIANCE.NS") ? "RELIANCE.NS" : universe[0]));
       } catch {
         setApiDown(true);
         return;
       }
-      // Live-accuracy series is optional (absent until monitoring has run once).
-      try {
-        setAccuracy(await api.accuracy());
-      } catch {
-        /* panel simply shows less */
-      }
+      // Optional extras — each fails independently without blanking the page.
+      void api.accuracy().then(setAccuracy).catch(() => {});
+      void Promise.all([api.history("^NSEI", 10), api.history("^INDIAVIX", 10)])
+        .then(([n, v]) =>
+          setIndexStats([
+            indexStat("NIFTY 50", n.candles),
+            indexStat("India VIX", v.candles),
+          ]),
+        )
+        .catch(() => {});
+      void Promise.all(
+        universe.map((t) => api.predict(t).catch(() => null)),
+      ).then((preds) =>
+        setPulse(Object.fromEntries(universe.map((t, i) => [t, preds[i]]))),
+      );
     })();
   }, []);
 
@@ -114,71 +139,84 @@ export default function Dashboard() {
           <div className="max-w-md text-center">
             <p className="text-lg font-medium">API is not reachable</p>
             <p className="mt-2 text-sm text-muted">
-              Start the serving stack first:{" "}
+              The model server may be waking from sleep (free hosting) — give it a
+              minute and reload. Running locally? Start it with{" "}
               <code className="rounded bg-zinc-900 px-1.5 py-0.5 font-mono text-xs">
                 uvicorn stockvol.serving.app:app --port 8000
-              </code>{" "}
-              then reload this page.
+              </code>
             </p>
           </div>
         </div>
       ) : (
-        <div className="grid flex-1 gap-6 py-6 lg:grid-cols-[240px_1fr]">
-          {/* Sidebar */}
-          <aside className="lg:sticky lg:top-6 lg:h-[calc(100vh-140px)]">
-            <TickerPicker tickers={tickers} selected={selected} onSelect={setSelected} />
-          </aside>
+        <>
+          <div className="rise">
+            <Hero stats={indexStats} liveAccuracy={accuracy?.latest?.rolling_acc ?? null} />
+          </div>
 
-          {/* Main */}
-          <main className="min-w-0 space-y-6">
-            {selected && meta && (
-              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <h2 className="text-2xl font-semibold tracking-tight">
-                  {shortSymbol(selected)}
-                </h2>
-                <p className="text-sm text-muted">{meta.name}</p>
-                {last && (
-                  <p className="ml-auto font-mono text-sm tabular-nums">
-                    ₹{last.close.toLocaleString("en-IN")}
-                    {dayChange != null && (
-                      <span
-                        className={`ml-2 ${dayChange >= 0 ? "text-emerald-400" : "text-rose-400"}`}
-                      >
-                        {dayChange >= 0 ? "+" : ""}
-                        {dayChange.toFixed(2)}%
-                      </span>
-                    )}
-                  </p>
-                )}
-              </div>
-            )}
+          <div className="grid flex-1 gap-6 py-6 lg:grid-cols-[240px_1fr]">
+            {/* Sidebar */}
+            <aside className="rise lg:sticky lg:top-6 lg:h-[calc(100vh-140px)]" style={{ animationDelay: "80ms" }}>
+              <TickerPicker tickers={tickers} selected={selected} onSelect={setSelected} />
+            </aside>
 
-            <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
-              <div className="min-w-0 rounded-xl border border-edge bg-panel p-4">
-                {candles.length > 0 ? (
-                  <CandleChart candles={candles} />
-                ) : (
-                  <div className="flex h-[360px] items-center justify-center text-sm text-muted">
-                    Loading chart…
-                  </div>
-                )}
-              </div>
-              <div className="space-y-6">
-                <PredictionCard
-                  prediction={prediction}
-                  loading={predicting}
-                  error={predictError}
+            {/* Main */}
+            <main className="min-w-0 space-y-6">
+              <div className="rise" style={{ animationDelay: "120ms" }}>
+                <MarketPulse
+                  pulse={pulse}
+                  tickers={tickers}
+                  selected={selected}
+                  onSelect={setSelected}
                 />
-                {!predicting && <WhyPanel explanation={explanation} />}
               </div>
-            </div>
 
-            <div className="grid gap-6 xl:grid-cols-[1fr_340px]">
-              <AccuracyRibbon ribbon={ribbon} />
-              <ModelHealth health={health} accuracy={accuracy} />
-            </div>
-          </main>
-        </div>
+              {selected && meta && (
+                <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                  <h2 className="text-2xl font-semibold tracking-tight">
+                    {shortSymbol(selected)}
+                  </h2>
+                  <p className="text-sm text-muted">{meta.name}</p>
+                  {last && (
+                    <p className="ml-auto font-mono text-sm tabular-nums">
+                      ₹{last.close.toLocaleString("en-IN")}
+                      {dayChange != null && (
+                        <span
+                          className={`ml-2 ${dayChange >= 0 ? "text-emerald-400" : "text-rose-400"}`}
+                        >
+                          {dayChange >= 0 ? "+" : ""}
+                          {dayChange.toFixed(2)}%
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="rise grid gap-6 xl:grid-cols-[1fr_340px]" style={{ animationDelay: "160ms" }}>
+                <div className="flex min-w-0 flex-col rounded-xl border border-edge bg-panel p-4">
+                  {candles.length > 0 ? (
+                    <CandleChart candles={candles} />
+                  ) : (
+                    <div className="min-h-90 w-full grow animate-pulse rounded-lg bg-zinc-900" />
+                  )}
+                </div>
+                <div className="space-y-6">
+                  <PredictionCard
+                    prediction={prediction}
+                    loading={predicting}
+                    error={predictError}
+                  />
+                  {!predicting && <WhyPanel explanation={explanation} />}
+                </div>
+              </div>
+
+              <div className="rise grid gap-6 xl:grid-cols-[1fr_340px]" style={{ animationDelay: "200ms" }}>
+                <AccuracyRibbon ribbon={ribbon} />
+                <ModelHealth health={health} accuracy={accuracy} />
+              </div>
+            </main>
+          </div>
+        </>
       )}
 
       <footer className="border-t border-edge py-4 text-center text-xs text-muted">
