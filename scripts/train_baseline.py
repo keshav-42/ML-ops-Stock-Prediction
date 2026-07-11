@@ -11,6 +11,7 @@ import pandas as pd
 
 from stockvol.config import PROCESSED_DIR
 from stockvol.models.lgbm_baseline import DEFAULT_PARAMS, run_walk_forward
+from stockvol.models.persistence import run_walk_forward as run_persistence
 
 try:
     import mlflow
@@ -22,6 +23,19 @@ except ImportError:  # pragma: no cover
 
 def main() -> None:
     df = pd.read_parquet(PROCESSED_DIR / "features.parquet")
+
+    # Persistence first: the no-model bar every learned model must beat.
+    persist = run_persistence(df)
+    print(persist.summary())
+    persist_metrics = {
+        "macro_f1_mean": persist.mean_macro_f1,
+        "macro_f1_std": persist.std_macro_f1,
+        **{f"recall_{k}": v for k, v in persist.mean_recall().items()},
+    }
+    pout = PROCESSED_DIR / "persistence_metrics.json"
+    pout.write_text(json.dumps(persist_metrics, indent=2), encoding="utf-8")
+    print(f"wrote {pout}\n")
+
     report, _ = run_walk_forward(df)
     print(report.summary())
 
