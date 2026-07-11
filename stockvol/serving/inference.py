@@ -46,7 +46,9 @@ class Predictor:
         self._mean = np.asarray(sc["mean"], dtype=np.float32)
         self._std = np.asarray(sc["std"], dtype=np.float32)
 
-        model = TCN(channels=tuple(self.meta["channels"]))
+        # n_features from the artifact, not the code — the artifact pins its own
+        # feature list, which may differ from the current FEATURE_COLUMNS.
+        model = TCN(n_features=len(self.columns), channels=tuple(self.meta["channels"]))
         model.load_state_dict(torch.load(artifact_dir / "model_fp32.pt"))
         model.eval()
 

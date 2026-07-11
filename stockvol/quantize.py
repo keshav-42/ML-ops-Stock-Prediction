@@ -78,7 +78,10 @@ class QuantizableTCN(nn.Module):
 
 def to_quantizable(model: TCN) -> QuantizableTCN:
     """Copy trained FP32 weights into the quantizable architecture."""
-    q = QuantizableTCN()
+    # Mirror the source model's input width (may differ from current N_FEATURES).
+    n_features = model.tcn[0].net[0].in_channels
+    channels = tuple(block.net[0].out_channels for block in model.tcn)
+    q = QuantizableTCN(n_features=n_features, channels=channels)
     q.load_state_dict(model.state_dict(), strict=False)  # quant/dequant/add have no params
     q.eval()
     return q
@@ -165,7 +168,8 @@ def benchmark(
 def format_table(rows: list[QuantRow]) -> str:
     base = rows[0]
     out = [
-        f"{'model':>14} {'size(KB)':>9} {'size_x':>7} {'lat(ms/smp)':>12} {'speedup':>8} {'macroF1':>8} {'ΔF1':>8}",
+        # ASCII only: Windows cp1252 stdout (redirected runs) can't encode Δ.
+        f"{'model':>14} {'size(KB)':>9} {'size_x':>7} {'lat(ms/smp)':>12} {'speedup':>8} {'macroF1':>8} {'dF1':>8}",
         "-" * 74,
     ]
     for r in rows:

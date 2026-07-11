@@ -54,9 +54,10 @@ def main() -> None:
         base = json.loads(base_path.read_text())
         delta = report.mean_macro_f1 - base["macro_f1_mean"]
         verdict = "BEATS" if delta > 0 else "does NOT beat"
+        # ASCII only: Windows cp1252 stdout (redirected runs) can't encode Δ.
         print(f"\nTCN {verdict} baseline: "
               f"{report.mean_macro_f1:.4f} vs {base['macro_f1_mean']:.4f} "
-              f"(Δ={delta:+.4f})")
+              f"(delta={delta:+.4f})")
 
     if _HAVE_MLFLOW:
         mlflow.set_experiment("volatility-bucket")
