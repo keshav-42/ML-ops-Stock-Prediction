@@ -22,9 +22,11 @@ flip, so any impressive accuracy is almost always leakage.
 
 **Volatility is different.** It clusters, it persists, and it is genuinely
 forecastable — which means this project can show a *real, measurable* model
-quality signal in production and grade itself honestly, every day. The live
-rolling accuracy (~37% vs a 33% random baseline for 3 classes) is modest and
-**real** — and the entire system is built to keep it that way.
+quality signal in production and grade itself honestly, every day. Because vol
+clusters, the honest bar is not the 33% random baseline but **persistence**
+("tomorrow's regime = today's", macro-F1 0.449 on the same folds) — the model
+clears it (0.484, ~49% walk-forward accuracy), and the entire system is built
+to keep that number real.
 
 ---
 
@@ -35,12 +37,12 @@ rolling accuracy (~37% vs a 33% random baseline for 3 classes) is modest and
 - **Walk-forward splits with a purge gap** — no shuffling, ever; scalers fit on train folds only
 - **Trailing-tercile labels** — computed per ticker from a trailing 252-day window, never global
 - **Leakage test suite gates the models** — it must pass before any model code runs (enforced in CI)
-- **Honest baseline** — LightGBM first (macro-F1 0.416), PyTorch TCN compared on the *same* splits (0.441); metrics are macro-F1 + per-class recall, never bare accuracy
+- **Honest baselines** — zero-parameter persistence first (macro-F1 0.449 — the bar vol clustering sets for free), then LightGBM (0.465), then the PyTorch TCN (0.484), all on the *same* splits; metrics are macro-F1 + per-class recall, never bare accuracy
 
 **Modeling**
-- Temporal Convolutional Network over 60-day windows of 28 causal features (incl. India VIX, Parkinson & Garman–Klass range volatility)
-- **Transfer learning**: pooled encoder trained across all tickers + fine-tuned heads (+3.2 F1 pts over from-scratch)
-- **Static INT8 quantization**: 2.5× smaller, faster on CPU, −0.03 F1 pts (~free)
+- Temporal Convolutional Network over 40-day windows of 35 causal features (incl. India VIX, Parkinson & Garman–Klass range volatility, and the label's own trailing tercile-threshold geometry)
+- **Transfer learning**: pooled encoder trained across all tickers beats target-only training zero-shot (+1.4 F1 pts); measured honestly — naive fine-tuning no longer helps once the features are strong
+- **Static INT8 quantization**: 2.5× smaller, faster on CPU, no F1 cost (~free)
 
 **Production serving**
 - FastAPI `/predict` with Redis **precompute-then-serve** caching (TTL to next market close), Prometheus metrics, p99 latency histograms
@@ -140,8 +142,8 @@ python -m scripts.run_ingest --tickers RELIANCE.NS --start 2015-01-01
 # Phase 1 — build feature table + labels
 python -m scripts.build_dataset
 
-# Phase 2 — models (baseline first, then TCN, same splits, MLflow logging)
-python -m scripts.train_baseline    # LightGBM walk-forward -> baseline_metrics.json
+# Phase 2 — models (persistence bar + LightGBM first, then TCN, same splits, MLflow logging)
+python -m scripts.train_baseline    # persistence + LightGBM walk-forward -> *_metrics.json
 python -m scripts.train_tcn         # PyTorch TCN
 
 # Phase 3 — transfer learning + INT8 quantization table

@@ -20,7 +20,7 @@ Living document. Updated as each phase lands. ✅ = built, 🔜 = planned.
                     vol-z, NIFTY regime, India VIX) + calendar_utils.py (calendar+expiry)
                   • labels.py: next-day GK vol → trailing-tercile bucket [data_spec §1]
                   • dataset.py: build (ticker,date) table → data/processed/features.parquet
-                    (82,550 rows × 33 cols, 25 equities, 2013-01 .. 2026-06)
+                    (82,775 rows × 40 cols, 25 equities, 2013-01 .. 2026-07)
                   • leakage suite (tests/test_leakage.py, 14 tests) ◄ GATE to Phase 2 [§4]
                                                       │
                                                       ▼
@@ -29,19 +29,21 @@ Living document. Updated as each phase lands. ✅ = built, 🔜 = planned.
                                                       │
                         ┌─────────────────────────────┴──────────────────────────┐
                         ▼                                                          ▼
-   ✅ Phase 2  models/lgbm_baseline.py                          models/tcn.py (PyTorch)
-                 macro-F1 0.4159±0.024 (HONEST BASELINE)         (B,28,40) dilated causal TCN
-                        │   evaluate.py: shared folds + macro-F1/recall   macro-F1 0.4410±0.027
+   ✅ Phase 2  models/persistence.py + lgbm_baseline.py         models/tcn.py (PyTorch)
+                 persistence 0.4490 (the no-model bar)           (B,35,40) dilated causal TCN
+                 LightGBM macro-F1 0.4645±0.023 (HONEST BASELINE)  macro-F1 0.4839±0.016
+                        │   evaluate.py: shared folds + macro-F1/recall   │
                         └─────────────────────────────┬──────────────────────────┘
-                                                      ▼   TCN beats baseline +0.025 (same folds)
+                                                      ▼   TCN beats baseline +0.019 (same folds)
                                           MLflow (params / metrics / artifacts) -> ./mlruns
                                                       │
                                                       ▼
    ✅ Phase 3  transfer.py: pretrain pooled encoder (24 tickers) → freeze → fine-tune
-                head on held-out RELIANCE.  scratch 0.4057 < zero-shot 0.4224 <
-                finetune 0.4376  (finetune beats from-scratch +0.032 macro-F1)
-                quantize.py (torch.ao): FP32 138KB / dyn-INT8 138KB (no-op on conv) /
-                static-INT8 56KB (2.45x smaller, 1.14x faster, -0.023 F1)
+                head on held-out RELIANCE.  scratch 0.4324 < zero-shot 0.4464
+                (pooled encoder transfers +1.4 pts zero-shot; naive fine-tune is
+                a wash at 0.4295 — the stronger features already carry the signal)
+                quantize.py (torch.ao): FP32 142KB / dyn-INT8 142KB (no-op on conv) /
+                static-INT8 57KB (2.47x smaller, 1.09x faster, F1-neutral)
                                                       │
                                                       ▼  quantized model artifact
    ✅ Phase 4  serving/app.py (FastAPI, lifespan-loaded once)
