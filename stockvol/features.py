@@ -16,12 +16,19 @@ import pandas as pd
 LN2 = np.log(2.0)
 GK_C2 = 2.0 * LN2 - 1.0  # ≈ 0.386294 (Garman–Klass open->close coefficient)
 
+# Trailing tercile-threshold window (shared with labels.py — the label is bucketed
+# against these same thresholds, so features may read them causally at t).
+TRAILING_WINDOW = 252
+Q_LOW = 1.0 / 3.0
+Q_HIGH = 2.0 / 3.0
+
 # Feature columns produced from a single equity series (excludes market+calendar).
 PRICE_FEATURES = [
     "ret_1", "ret_5", "ret_10", "ret_21",
     "rstd_5", "rstd_10", "rstd_21",
     "parkinson_t", "gk_t", "gk_ma_5", "gk_ma_10", "gk_ma_21",
     "atr_14", "rsi_14", "macd", "macd_signal", "macd_hist", "vol_z_21",
+    "gk_pos", "gk_ma5_pos", "gk_edge_dist", "gk_vov_21", "gk_trend",
 ]
 
 
@@ -31,6 +38,19 @@ def gk_vol(df: pd.DataFrame) -> pd.Series:
     co = np.log(df["close"] / df["open"])
     var = 0.5 * hl**2 - GK_C2 * co**2
     return np.sqrt(var.clip(lower=0.0))  # floor before sqrt; never NaN from neg var
+
+
+def trailing_thresholds(gk: pd.Series, window: int = TRAILING_WINDOW) -> pd.DataFrame:
+    """q33/q66 of GK vol over a trailing window ENDING at t (includes t, not t+1).
+
+    `min_periods=window` => the first `window-1` rows have NaN thresholds and are
+    dropped downstream (insufficient history). Lives here (not labels.py) because
+    the threshold geometry is BOTH the label's bucketing rule and a legitimate
+    causal feature: at day t the thresholds are fully known.
+    """
+    q33 = gk.rolling(window, min_periods=window).quantile(Q_LOW)
+    q66 = gk.rolling(window, min_periods=window).quantile(Q_HIGH)
+    return pd.DataFrame({"q33": q33, "q66": q66})
 
 
 def parkinson_vol(df: pd.DataFrame) -> pd.Series:
@@ -110,5 +130,20 @@ def price_features(df: pd.DataFrame) -> pd.DataFrame:
     vmean = v.rolling(21).mean()
     vstd = v.rolling(21).std()
     out["vol_z_21"] = (v - vmean) / vstd.replace(0.0, np.nan)
+
+    # Label-geometry features: the label buckets GK_vol_{t+1} against trailing
+    # tercile thresholds known at t — give the model today's position in that
+    # exact geometry (vol persistence makes this the strongest signal).
+    thr = trailing_thresholds(gk)
+    band = (thr["q66"] - thr["q33"]).replace(0.0, np.nan)
+    out["gk_pos"] = (gk - thr["q33"]) / band            # <=0 low band, <=1 med, >1 high
+    out["gk_ma5_pos"] = (out["gk_ma_5"] - thr["q33"]) / band
+    out["gk_edge_dist"] = (
+        np.minimum((gk - thr["q33"]).abs(), (gk - thr["q66"]).abs()) / band
+    )  # small => near a boundary => regime flip likely
+
+    # Vol-of-vol (dispersion of recent vol) and short/long vol regime slope.
+    out["gk_vov_21"] = gk.rolling(21).std() / gk.rolling(21).mean().replace(0.0, np.nan)
+    out["gk_trend"] = out["gk_ma_5"] / out["gk_ma_21"].replace(0.0, np.nan) - 1.0
 
     return out

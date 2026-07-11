@@ -99,7 +99,7 @@ def build_ticker(
     dropped_warmup = int(warmup_mask.sum())
 
     # Drop rows still missing market context (no fabrication of regime).
-    ctx_missing = df[["nifty_ret_1", "nifty_rstd_21", "vix_level"]].isna().any(axis=1)
+    ctx_missing = df[MARKET_FEATURES].isna().any(axis=1)
     dropped_no_ctx = int(ctx_missing.sum())
     df = df[~ctx_missing].copy()
 

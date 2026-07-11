@@ -10,26 +10,19 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from .features import gk_vol
+# trailing_thresholds lives in features.py (the same geometry is a causal feature);
+# re-exported here so label code and tests keep importing it from labels.
+from .features import (  # noqa: F401
+    Q_HIGH,
+    Q_LOW,
+    TRAILING_WINDOW,
+    gk_vol,
+    trailing_thresholds,
+)
 
 LABELS = ("low", "med", "high")
 LABEL_TO_INT = {"low": 0, "med": 1, "high": 2}
 INT_TO_LABEL = {v: k for k, v in LABEL_TO_INT.items()}
-
-TRAILING_WINDOW = 252
-Q_LOW = 1.0 / 3.0
-Q_HIGH = 2.0 / 3.0
-
-
-def trailing_thresholds(gk: pd.Series, window: int = TRAILING_WINDOW) -> pd.DataFrame:
-    """q33/q66 of GK vol over a trailing window ENDING at t (includes t, not t+1).
-
-    `min_periods=window` => the first `window-1` rows have NaN thresholds and are
-    dropped downstream (insufficient history).
-    """
-    q33 = gk.rolling(window, min_periods=window).quantile(Q_LOW)
-    q66 = gk.rolling(window, min_periods=window).quantile(Q_HIGH)
-    return pd.DataFrame({"q33": q33, "q66": q66})
 
 
 def make_labels(df: pd.DataFrame, window: int = TRAILING_WINDOW) -> pd.DataFrame:

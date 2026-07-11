@@ -5,7 +5,7 @@ from __future__ import annotations
 import numpy as np
 import torch
 
-from stockvol.models.tcn import TCN
+from stockvol.models.tcn import N_FEATURES, TCN, WINDOW
 from stockvol.quantize import (
     QuantizableTCN,
     dynamic_quantize,
@@ -25,7 +25,7 @@ def test_quantizable_loads_fp32_weights():
 
 def test_static_quant_shrinks_and_runs():
     m = TCN().eval()
-    X = np.random.randn(200, 28, 40).astype(np.float32)
+    X = np.random.randn(200, N_FEATURES, WINDOW).astype(np.float32)
     s = static_quantize(m, X[:100])
     # conv-heavy net -> meaningful shrink
     assert model_size_bytes(s) < 0.6 * model_size_bytes(m)
